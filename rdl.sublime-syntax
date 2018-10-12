@@ -1,0 +1,76 @@
+%YAML 1.2
+---
+# See http://www.sublimetext.com/docs/3/syntax.html
+name: SystemRDL
+file_extensions: [rdl]
+scope: source.rdl
+
+contexts:
+  main:
+    # Strings begin and end with quotes, and use backslashes as an escape
+    # character
+    - match: '"'
+      scope: punctuation.definition.string.begin.rdl
+      push: double_quoted_string
+
+    # Comments begin with a '//' and finish at the end of the line
+    - match: '//'
+      scope: punctuation.definition.comment.rdl
+      push: line_comment
+
+    # Comments begin with a '/*' and finish at the first '*/'
+    - match: '/\*'
+      scope: punctuation.definition.comment.rdl
+      push: block_comment
+
+    # Keywords are if, else for and while.
+    # Note that blackslashes don't need to be escaped within single quoted
+    # strings in YAML. When using single quoted strings, only single quotes
+    # need to be escaped: this is done by using two single quotes next to each
+    # other.
+    - match: \b(reg|regfile|addrmap|signal|enum|field)\b
+      scope: keyword.component.rdl
+
+    # Numbers
+    - match: '\b(-)?[0-9.]+\b'
+      scope: constant.numeric.rdl
+
+    # Braces
+    - match: \{
+      push: braces
+    - match: \}
+      scope: invalid.illegal.stray-brace-end.rdl
+
+    # Brackets
+    - match: \(
+      push: brackets
+    - match: \)
+      scope: invalid.illegal.stray-bracket-end.rdl
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double.rdl
+    - match: '\\.'
+      scope: constant.character.escape.rdl
+    - match: '"'
+      scope: punctuation.definition.string.end.rdl
+      pop: true
+
+  line_comment:
+    - meta_scope: comment.line.rdl
+    - match: $
+      pop: true
+
+  block_comment:
+    - meta_scope: comment.line.rdl
+    - match: '\*\/'
+      pop: true
+
+  braces:
+    - match: \}
+      pop: true
+    - include: main
+
+  brackets:
+    - match: \)
+      pop: true
+    - include: main
